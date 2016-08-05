@@ -1,0 +1,12 @@
+node_modules
+tst.html
+test/example.js
+test/package.json
+test/tst*
+.gitignore
+.npmignore
+npm-debug.log
+*/npm-debug.log
+bench
+benchmark
+*.swp

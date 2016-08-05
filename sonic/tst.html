@@ -1,0 +1,677 @@
+<h1 id="sonic-async">Sonic-Async</h1>
+<p>Sonic-Async is an async flow control javascript library with excellent <a href="#performance"><code>performance</code></a> characteristics.<br>It consistently comes out on top on benchmarking runs.  For the API calls that are currently available, 
+they are compatible with Async except <a href="#waterfall"><code>waterfall</code></a>.</p>
+<p>Sonic-Async can be installed as a node module with npm.</p>
+<pre><code>$npm install sonic-async
+</code></pre><p>You can also use it in a browser running as a very lightweight JS library.</p>
+<pre><code class="lang-html">&lt;script type=&quot;text/javascript&quot; src=&quot;https://npmcdn.com/sonic-async/sonicAsync.min.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+<h2 id="api-sumary">API Sumary</h2>
+<p>Listed below are currently available APIs with a brief description of what it is for each.<br>Click the name of each API for details.</p>
+<h3 id="control-flow">Control Flow</h3>
+<ul>
+<li><a href="#all"><code>all</code></a> - runs all the tasks in parallel regardless what the return staus of each task.</li>
+<li><a href="#parallel"><code>parallel</code></a> - runs all the tasks in parallel.</li>
+<li><a href="#parallelLimit"><code>parallelLimit</code></a> - runs tasks in parallel with limited concurrency.</li>
+<li><a href="#race"><code>race</code></a> - runs all the tasks in parallel and the optional done callback returns the result from the 1st completed task.</li>
+<li><a href="#series"><code>series</code></a> - runs tasks sequencially.</li>
+<li><a href="#waterfall"><code>waterfall</code></a> - runs tasks sequencially and passes the result from one to the next.</li>
+<li><a href="#fastWaterfall"><code>fastWaterfall</code></a> - runs tasks sequencially and passes the result from one to the next.</li>
+</ul>
+<h3 id="collections">Collections</h3>
+<ul>
+<li><a href="#map"><code>map</code></a> - maps the values in a collection in parallel and returns a new array that contains the mapped values.</li>
+<li><a href="#mapAll"><code>mapAll</code></a> - maps the values in a collection in parallel and returns a new array that contains the mapped values regardless the mapper&#39;s return status.</li>
+<li><a href="#mapParallel"><code>mapParallel</code></a> - same as <a href="#map"><code>map</code></a>.</li>
+<li><a href="#mapLimit"><code>mapLimit</code></a> - maps the values in a collection in parallel with limited concurrency and returns a new array that contains the mapped values.</li>
+<li><a href="#mapSeries"><code>mapSeries</code></a> - maps the values in a collection sequencially and returns a new array that contains the mapped values.</li>
+<li><a href="#filter"><code>filter</code></a> - filters the values in a collection in parallel and returns a new array that contains the filtered values.</li>
+<li><a href="#filterParallel"><code>filterParallel</code></a> - same as <a href="#filter"><code>filter</code></a>.</li>
+<li><a href="#filterLimit"><code>filterLimit</code></a> - filters the values in a collection in parallel with limited concurrency and returns a new array that contains the filtered values.</li>
+<li><a href="#filterSeries"><code>filterSeries</code></a> - filters the values in a collection sequencially and returns a new array that contains the filtered values.</li>
+</ul>
+<h2 id="options">Options</h2>
+<p>This library lets you decide how to handle the multiple task callback invocations.
+By default, it will print a message to the console.</p>
+<ul>
+<li><p>E.g.,</p>
+<p><code>callback called already; err= null ; data= 2</code>  </p>
+</li>
+</ul>
+<p>Here, the err and data are the values from 2 arguments of the task callback.</p>
+<ul>
+<li><code>sonicAsync.silent</code> - if set to false, a message similar to the example above is printed to the console.  The default value is false.</li>
+<li><code>sonicAsync.trace</code> - if set to true, the stack trace is printed to the console and no error is thrown.  The default value is false.</li>
+<li><p><code>sonicAsync.errout</code> - if set to true and <code>sonicAsync.trace</code> is false,  an error is thrown.  The default value is false.</p>
+</li>
+<li><p>Usage:</p>
+<pre><code class="lang-js">sonicAsync = require(&#39;sonic-async&#39;);  
+sonicAsync.silent = true;  // no message will be printed
+</code></pre>
+</li>
+</ul>
+<h2 id="api-details">API Details</h2>
+<h3 id="control-flow">Control Flow</h3>
+<p><a name="all"></a></p>
+<h4 id="all-tasks-done_callback-">all(tasks, [done_callback])</h4>
+<p>Runs all the <code>tasks</code> in parallel as if all of them run at the same time. If any one of the tasks passes an error to its callback, 
+the error is stored in the results array instead of calling done_callback immediately.  All tasks are run until completion regardless what status they return.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>tasks</code> - an array of functions to be executed. Each function is passed
+a <code>callback(err, result)</code> which it must call on completion with an error <code>err</code>
+(which can be <code>null</code>) and an optional <code>result</code> value.</li>
+<li><code>done_callback(err, results)</code> - an optional callback to be executed once all the functions have completed.<br>The results argument is an array that contains the values produced by all the tasks with the order aligned with <code>tasks</code>.
+err is always set to null.</li>
+</ul>
+<p><strong>Example</strong></p>
+<pre><code class="lang-js">sonicAsync.all([
+    function(callback){
+        setTimeout(function(){
+            callback(&#39;error&#39;, null);
+        }, 2);
+    },
+    function(callback){
+        setTimeout(function(){
+            callback(null, 3);
+        }, 3);
+    }
+],
+// optional done callback
+function(err, results){
+    console.log(results); //  [&#39;error&#39;, 3] 
+});
+</code></pre>
+<hr>
+<p><a name="parallel"></a></p>
+<h4 id="parallel-tasks-done_callback-">parallel(tasks, [done_callback])</h4>
+<p>Runs all the <code>tasks</code> in parallel as if all of them run at the same time. If any one of the tasks passes an error to its callback, 
+the <code>done_callback</code> is immediately called with the value of the error.  Once all the <code>tasks</code> are done, 
+the results are passed to the <code>done_callback</code> as an array in the same order of <code>tasks</code>.  </p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>tasks</code> - an array of functions to be executed. Each function is passed
+a <code>callback(err, result)</code> which it must call on completion with an error <code>err</code>
+(which can be <code>null</code>) and an optional <code>result</code> value.</li>
+<li><code>done_callback(err, results)</code> - an optional callback to be executed once all the functions
+have completed successfully or an error was return by one of the tasks.  The results argument 
+is an array that contains the values produced by all the tasks with the order aligned with <code>tasks</code>.</li>
+</ul>
+<p><strong>Example</strong></p>
+<pre><code class="lang-js">sonicAsync.parallel([
+    function(callback){
+        setTimeout(function(){
+            callback(null, 2);
+        }, 2);
+    },
+    function(callback){
+        setTimeout(function(){
+            callback(null, 3);
+        }, 3);
+    }
+],
+// optional done callback
+function(err, results){
+    console.log(results); //  [2, 3] 
+});
+</code></pre>
+<hr>
+<p><a name="parallelLimit"></a></p>
+<h3 id="parallellimit-tasks-limit-done_callback-">parallelLimit(tasks, limit, [done_callback])</h3>
+<p>The number of <code>tasks</code> that runs in parallel are capped at <code>limit</code>.  A task will be spawn up right away once a task 
+is completed one after another until all the tasks are spawn up.  If any one of the tasks passes an error to 
+its callback, the <code>done_callback</code> is immediately called with the value of the error.  Once all the <code>tasks</code> are done, 
+the results are passed to the <code>done_callback</code> as an array in the same order of <code>tasks</code>.  </p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>tasks</code> - an array of functions to be run. Each function is passed
+a <code>callback(err, result)</code> which it must call on completion with an error <code>err</code>
+(which can be <code>null</code>) and an optional <code>result</code> value.</li>
+<li><code>limit</code> - the concurrency of running tasks is capped at <code>limit</code>.</li>
+<li><code>done_callback(err, results)</code> - an optional callback to be run once all the functions
+have completed successfully or when an error was return by any one of the functions. The results argument 
+is an array that contains the values produced by all the tasks with the order aligned with <code>tasks</code>.</li>
+</ul>
+<p><strong>Example</strong></p>
+<pre><code class="lang-js">sonicAsync.parallelLimit([
+    function(callback){
+        setTimeout(function(){
+            callback(null, 1);
+        }, 2);
+    },
+    function(callback){
+        setTimeout(function(){
+            callback(null, 2);
+        }, 9);
+    },
+    function(callback){
+        setTimeout(function(){
+            callback(null, 3);
+        }, 12);
+    },
+    function(callback){
+        setTimeout(function(){
+            callback(null, 4);
+        }, 20);
+    },
+    function(callback){
+        setTimeout(function(){
+            callback(null, 5);
+        }, 5);
+    }
+],
+//concurrency limit
+2,
+// optional done callback
+function(err, results){
+    console.log(results); //  [1, 2, 3, 4, 5] 
+});
+</code></pre>
+<hr>
+<p><a name="race"></a></p>
+<h3 id="race-tasks-done_callback-">race(tasks, [done_callback])</h3>
+<p>Runs all the <code>tasks</code> in parallel as if all of them run at the same time. 
+the <code>done_callback</code> is immediately called with the value of either failure or success from the 1st completed task.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>tasks</code> - an array of functions to be executed. Each function is passed
+a <code>callback(err, result)</code> which it must call on completion with an error <code>err</code>
+(which can be <code>null</code>) and an optional <code>result</code> value.</li>
+<li><code>done_callback(err, result)</code> - an optional callback to be invoked by the 1st completed task callback.</li>
+</ul>
+<p><strong>Example</strong></p>
+<pre><code class="lang-js">sonicAsync.race([
+    function(callback){
+        setTimeout(function(){
+            callback(null, 2);
+        }, 2);
+    },
+    function(callback){
+        setTimeout(function(){
+            callback(null, 3);
+        }, 3);
+    }
+],
+// optional done callback
+function(err, result){
+    console.log(result); //  2 
+});
+</code></pre>
+<hr>
+<p><a name="series"></a></p>
+<h3 id="series-tasks-done_callback-">series(tasks, [done_callback])</h3>
+<p>Runs the <code>tasks</code> sequentially, one after another until all the tasks have been
+completed. If any one of the tasks in the series passes an error to its
+callback, <code>done_callback</code> is immediately called with the value of the error.
+Otherwise, <code>done_callback</code> receives the results as an array when all the <code>tasks</code> have been completed.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>tasks</code> - an array containing functions to be executed, each function is passed
+a <code>callback(err, result)</code> it must call on completion with an error <code>err</code> (which can be <code>null</code>) and an optional <code>result</code> value.</li>
+<li><code>done_callback(err, results)</code> - an optional callback to run once all the functions have been 
+completed successfully or when an error was return by any one of the functions. The results 
+argument is an array that contains the values produced by all the tasks with the order aligned with <code>tasks</code>.</li>
+</ul>
+<p><strong>Example</strong></p>
+<pre><code class="lang-js">sonicAsync.series([
+    function(callback){
+        // do something ...
+        callback(null, 1);
+    },
+    function(callback){
+        // do some more things...
+        callback(null, 2);
+    }
+],
+// optional done callback
+function(err, results){
+    console.log(results); // [1, 2]
+});
+</code></pre>
+<hr>
+<p><a name="waterfall"></a></p>
+<h3 id="waterfall-tasks-done_callback-">waterfall(tasks, [done_callback])</h3>
+<p>Runs the <code>tasks</code> sequentially, each passing its result to the next.  However, if any one of the <code>tasks</code> passes 
+an error to its own callback, the next task is not executed, and the <code>done_callback</code> is immediately called with the error.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>tasks</code> - an array of functions to be executed, each function is passed a
+<code>callback(err, result)</code> it must call on completion. The first
+argument is an error (which can be <code>null</code>) and the 2nd argument, resutl, is passed on to the next task.</li>
+<li><code>done_callback(err, result)</code> - an optional callback to be run once all the functions have completed. 
+The result from the last task will be passed to <code>done_callback</code> as the 2nd and last argument.</li>
+</ul>
+<p><strong>Example</strong></p>
+<pre><code class="lang-js">soniAsync.waterfall([
+    // the wrapping function always has the signature of function(data, callback)
+    function(data, callback) {
+        callback(null, 1);
+    },
+    function(data, callback) {
+      // data now equals 1
+        callback(null, [2,5]);
+    },
+    function(data, callback) {
+      // data now equals [2,5]
+        callback(null, 3);
+    }
+], function (err, result) {  // the done_callback
+    console.log(result ) //  3
+});
+</code></pre>
+<hr>
+<p><a name="fastWaterfall"></a></p>
+<h3 id="fastwaterfall-tasks-done_callback-">fastWaterfall(tasks, [done_callback])</h3>
+<p>This API is basically the same as waterfall with the exception that it is not callback safe.<br>If the task callback is invoked more than once, it may cause one or more of the tasks to be skipped.<br>Since it does not guard against multiple task callbacks, it runs faster than the regular waterfall API.</p>
+<hr>
+<p><a name="map"></a></p>
+<h3 id="map-data-mapfunc-done_callback-">map(data, mapfunc, [done_callback])</h3>
+<p>Produces a new array by mapping each value in the <code>data</code> array through
+the <code>mapfunc</code> function. The <code>mapfunc</code> is called with an item from <code>data</code> and a
+callback for when it has finished processing.  Each of these callbacks takes 2 arguments:
+an <code>error</code>, and the transformed item from <code>data</code>. If <code>mapfunc</code> passes an error to its
+callback, the <code>done_callback</code> is immediately called with the error.
+Since this API applies the <code>mapfunc</code> to each item in parallel,
+the <code>mapfunc</code> functions can complete in any order.
+However, the results array will be in the same order as the original <code>data</code> array.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>data</code> - an array to iterate over.</li>
+<li><code>mapfunc(item, callback)</code> - a function to apply to each item in <code>data</code>.
+The <code>mapfunc</code> is passed a <code>callback(err, transformed_item)</code> which must be called once
+it has completed with an error (which can be <code>null</code>) and a transformed item.</li>
+<li><code>done_callback(err, results)</code> - an optional callback which is called when all <code>mapfunc</code>
+functions have finished, or an error occurs.  Results are an array of the
+transformed items from the <code>data</code> array.</li>
+</ul>
+<p><strong>Example</strong></p>
+<pre><code class="lang-js">sonicAsync.map([1,2,3], 
+    function mapfunc(val, cb) {
+        setTimeout(function() {
+                cb(null, val*2);
+            }, 5
+        );
+    }, 
+    function(err, results){
+        console.log(results); //  [2,4,6]
+});
+</code></pre>
+<hr>
+<p><a name="mapAll"></a></p>
+<h3 id="mapall-data-mapfunc-done_callback-">mapAll(data, mapfunc, [done_callback])</h3>
+<p>Produces a new array by mapping each value in the <code>data</code> array through
+the <code>mapfunc</code> function. The <code>mapfunc</code> is called with an item from <code>data</code> and a
+callback for when it has finished processing.  Each of these callbacks takes 2 arguments:
+an <code>error</code>, and the transformed item from <code>data</code>.
+Since this API applies the <code>mapfunc</code> to each item in parallel,
+the <code>mapfunc</code> functions can complete in any order.
+However, the results array will be in the same order as the original <code>data</code> array.  The <code>done_callback</code> is called when all the values in <code>data</code> has been mapped regarless the return status of manpfunc.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>data</code> - an array to iterate over.</li>
+<li><code>mapfunc(item, callback)</code> - a function to apply to each item in <code>data</code>.
+The <code>mapfunc</code> is passed a <code>callback(err, transformed_item)</code> which must be called once
+it has completed with an error (which can be <code>null</code>) and a transformed item.</li>
+<li><code>done_callback(err, results)</code> - an optional callback which is called when all <code>mapfunc</code>
+functions have finished.  Results are an array of the transformed items from the <code>data</code> array.</li>
+</ul>
+<p><strong>Example</strong></p>
+<pre><code class="lang-js">sonicAsync.map([1,2,3], 
+    function mapfunc(val, cb) {
+        setTimeout(function() {
+            if( val === 2 )
+                cb(&#39;error&#39;, null);
+            else
+                cb(null, val*2);
+            }, 5
+        );
+    }, 
+    function(err, results){
+        console.log(results); //  [2,&#39;error&#39;,6]
+});
+</code></pre>
+<hr>
+<p><a name="mapLimit"></a></p>
+<h3 id="maplimit-data-mapfunc-limit-done_callback-">mapLimit(data, mapfunc, limit, [done_callback])</h3>
+<p>This is the same as <code>map</code> except that the concurrency is capped at <code>limit</code>.
+When a <code>mapfunc</code> is done mapping an item, another <code>mapfunc</code> is spawn up to map the
+next item in the <code>data</code> array.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>data</code> - an array to iterate over.</li>
+<li><code>limit</code> - the concurrency of running <code>mapfunc</code>s is capped at <code>limit</code>.</li>
+<li><code>mapfunc(item, callback)</code> - a function to apply to each item in <code>data</code>.
+The <code>mapfunc</code> is passed a <code>callback(err, transformed_item)</code> which must be called once
+it has completed with an error (which can be <code>null</code>) and a transformed item.</li>
+<li><code>done_callback(err, results)</code> - an optional callback which is called when all <code>mapfunc</code>
+functions have finished, or an error occurs.  Results is an array of the
+transformed items from the <code>data</code> array.</li>
+</ul>
+<p><strong>Example</strong></p>
+<pre><code class="lang-js">sonicAsync.map([1,2,3], 
+    // maximum mapfuncs running is 2
+    2,
+    function mapfunc(val, cb) {
+        setTimeout(function() {
+                cb(null, val*2);
+            }, 5
+        );
+    }, 
+    function(err, results){
+        console.log(results); //  [2,4,6]
+});
+</code></pre>
+<hr>
+<p><a name="mapParallel"></a></p>
+<h3 id="mapparallel-data-mapfunc-done_callback-">mapParallel(data, mapfunc, [done_callback])</h3>
+<p>This is exactly the same as <code>map</code>.</p>
+<hr>
+<p><a name="mapSeries"></a></p>
+<h3 id="mapseries-data-mapfunc-done_callback-">mapSeries(data, mapfunc, [done_callback])</h3>
+<p>This is a special case of mapLimit with limit set to 1.</p>
+<hr>
+<p><a name="filter"></a></p>
+<h3 id="filter-data-filterfunc-done_callback-">filter(data, filterfunc, [done_callback])</h3>
+<p>Produces a new array by filtering each value in the <code>data</code> array through
+the <code>filterfunc</code> function. The <code>filterfunc</code> is called with an item from <code>data</code> and a
+callback for when it has finished processing.  Each of these callbacks takes 2 arguments:
+an <code>error</code>, and a boolean. If <code>filterfunc</code> passes an error to its
+callback, the <code>done_callback</code> is immediately called with the error.
+Since this API applies the <code>filterfunc</code> to each item in parallel,
+the <code>filterfunc</code> functions can complete in any order.
+However, the order of the items in the results array is aligned with the original <code>data</code> array.<br>The results array contains the items if any where the filterfunc callback&#39;s 2nd argument is set to true.  </p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>data</code> - an array to iterate over.</li>
+<li><code>filterfunc(item, callback)</code> - a function to apply to each item in <code>data</code>.
+The <code>filterfunc</code> is passed a <code>callback(err, boolean)</code> which must be called once
+it has completed with an error (which can be <code>null</code>) and a true or false value.</li>
+<li><code>done_callback(err, results)</code> - an optional callback which is called when all <code>filterfunc</code>
+functions have finished, or an error occurs.  Results is an array of the
+filtered items from the <code>data</code> array.</li>
+</ul>
+<p><strong>Example</strong></p>
+<pre><code class="lang-js">sonicAsync.filter([1,2,3], 
+    function filterfunc(val, cb) {
+        setTimeout(function() {
+                cb(null, val%2);
+            }, 5
+        );
+    }, 
+    function(err, results){
+        console.log(results); //  [1,3]
+});
+</code></pre>
+<hr>
+<p><a name="filterLimit"></a></p>
+<h3 id="filterlimit-data-filterfunc-limit-done_callback-">filterLimit(data, filterfunc, limit, [done_callback])</h3>
+<p>This API is the same as filter except that the concurrency is capped at <code>limit</code>.
+When a <code>filterfunc</code> is done filtering an item, another <code>filterfunc</code> is spawn up to 
+filter the next item in the <code>data</code> array.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>data</code> - an array to iterate over.</li>
+<li><code>filterfunc(item, callback)</code> - a function to apply to each item in <code>data</code>.
+The <code>filterfunc</code> is passed a <code>callback(err, boolean)</code> which must be called 
+once it has completed with an error (which can be <code>null</code>) and a true or false value.</li>
+<li><code>limit</code> - the concurrency of running <code>filterfunc</code>s is capped at <code>limit</code>.</li>
+<li><code>done_callback(err, results)</code> - an optional callback which is called when all 
+<code>filterfunc</code> functions have finished, or an error occurs.  Results is an 
+array of the filtered items from the <code>data</code> array.</li>
+</ul>
+<p><strong>Example</strong></p>
+<pre><code class="lang-js">sonicAsync.filter([1,2,3], 
+    2,
+    function filterfunc(val, cb) {
+        setTimeout(function() {
+                cb(null, val%2);
+            }, 5
+        );
+    }, 
+    function(err, results){
+        console.log(results); //  [1,3]
+});
+</code></pre>
+<hr>
+<p><a name="filterParallel"></a></p>
+<h3 id="filterparallel-data-filterfunc-done_callback-">filterParallel(data, filterfunc, [done_callback])</h3>
+<p>This is exactly the same as <code>filter</code>.</p>
+<hr>
+<p><a name="filterSeries"></a></p>
+<h3 id="filterseries-data-filterfunc-done_callback-">filterSeries(data, filterfunc, [done_callback])</h3>
+<p>This is a special case of filterLimit with limit set to 1.</p>
+<hr>
+<p><a name="performance"></a></p>
+<h2 id="benchmarks">Benchmarks</h2>
+<p>The code for benchmarking is a copy from bluebird&#39;s benchmark.
+A correction has been made to remove the bias against async style libraries
+in parallel bechmarking.  See <a href="https://github.com/petkaantonov/bluebird/issues/985"><code>bluebird issue #985</code></a> for details.</p>
+<h3 id="doxbee-sequential">DoxBee sequential</h3>
+<p>Run: npm run benchw</p>
+<p>results for 10000 parallel executions, 1 ms per I/O op</p>
+<table>
+<thead>
+<tr>
+<th>file</th>
+<th style="text-align:right">time(ms)</th>
+<th style="text-align:right">memory(MB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>callbacks-baseline.js</td>
+<td style="text-align:right">184</td>
+<td style="text-align:right">43.60</td>
+</tr>
+<tr>
+<td>callbacks-peterluhub-sonic-async-fast-waterfall.js</td>
+<td style="text-align:right">211</td>
+<td style="text-align:right">46.54</td>
+</tr>
+<tr>
+<td>callbacks-peterluhub-sonic-async-waterfall.js</td>
+<td style="text-align:right">228</td>
+<td style="text-align:right">46.90</td>
+</tr>
+<tr>
+<td>callbacks-suguru03-neo-async-waterfall.js</td>
+<td style="text-align:right">236</td>
+<td style="text-align:right">46.41</td>
+</tr>
+<tr>
+<td>promises-bluebird-generator.js</td>
+<td style="text-align:right">248</td>
+<td style="text-align:right">33.43</td>
+</tr>
+<tr>
+<td>promises-bluebird.js</td>
+<td style="text-align:right">330</td>
+<td style="text-align:right">46.21</td>
+</tr>
+<tr>
+<td>promises-then-promise.js</td>
+<td style="text-align:right">396</td>
+<td style="text-align:right">56.32</td>
+</tr>
+<tr>
+<td>promises-cujojs-when.js</td>
+<td style="text-align:right">432</td>
+<td style="text-align:right">61.80</td>
+</tr>
+<tr>
+<td>promises-tildeio-rsvp.js</td>
+<td style="text-align:right">517</td>
+<td style="text-align:right">94.55</td>
+</tr>
+<tr>
+<td>promises-lvivski-davy.js</td>
+<td style="text-align:right">623</td>
+<td style="text-align:right">110.51</td>
+</tr>
+<tr>
+<td>callbacks-caolan-async-waterfall.js</td>
+<td style="text-align:right">660</td>
+<td style="text-align:right">102.25</td>
+</tr>
+<tr>
+<td>promises-dfilatov-vow.js</td>
+<td style="text-align:right">662</td>
+<td style="text-align:right">134.60</td>
+</tr>
+<tr>
+<td>promises-calvinmetcalf-lie.js</td>
+<td style="text-align:right">742</td>
+<td style="text-align:right">149.23</td>
+</tr>
+<tr>
+<td>promises-ecmascript6-native.js</td>
+<td style="text-align:right">966</td>
+<td style="text-align:right">173.67</td>
+</tr>
+<tr>
+<td>promises-obvious-kew.js</td>
+<td style="text-align:right">1188</td>
+<td style="text-align:right">92.96</td>
+</tr>
+<tr>
+<td>promises-medikoo-deferred.js</td>
+<td style="text-align:right">2086</td>
+<td style="text-align:right">188.91</td>
+</tr>
+<tr>
+<td>promises-kriskowal-q.js</td>
+<td style="text-align:right">7623</td>
+<td style="text-align:right">685.28</td>
+</tr>
+<tr>
+<td>observables-caolan-highland.js</td>
+<td style="text-align:right">7926</td>
+<td style="text-align:right">582.04</td>
+</tr>
+</tbody>
+</table>
+<h3 id="parallel">Parallel</h3>
+<p>Run: npm run benchp</p>
+<p>results for 10000 parallel executions, 1 ms per I/O op</p>
+<table>
+<thead>
+<tr>
+<th>file</th>
+<th style="text-align:right">time(ms)</th>
+<th style="text-align:right">memory(MB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>callbacks-baseline.js</td>
+<td style="text-align:right">279</td>
+<td style="text-align:right">63.21</td>
+</tr>
+<tr>
+<td>callbacks-peterluhub-sonic-async-parallel.js</td>
+<td style="text-align:right">323</td>
+<td style="text-align:right">73.52</td>
+</tr>
+<tr>
+<td>callbacks-suguru03-neo-async-parallel.js</td>
+<td style="text-align:right">339</td>
+<td style="text-align:right">79.15</td>
+</tr>
+<tr>
+<td>promises-bluebird.js</td>
+<td style="text-align:right">458</td>
+<td style="text-align:right">99.23</td>
+</tr>
+<tr>
+<td>promises-bluebird-generator.js</td>
+<td style="text-align:right">509</td>
+<td style="text-align:right">98.96</td>
+</tr>
+<tr>
+<td>callbacks-caolan-async-parallel.js</td>
+<td style="text-align:right">667</td>
+<td style="text-align:right">139.51</td>
+</tr>
+<tr>
+<td>promises-cujojs-when.js</td>
+<td style="text-align:right">897</td>
+<td style="text-align:right">161.46</td>
+</tr>
+<tr>
+<td>promises-lvivski-davy.js</td>
+<td style="text-align:right">1437</td>
+<td style="text-align:right">269.44</td>
+</tr>
+<tr>
+<td>promises-then-promise.js</td>
+<td style="text-align:right">1616</td>
+<td style="text-align:right">304.30</td>
+</tr>
+<tr>
+<td>promises-calvinmetcalf-lie.js</td>
+<td style="text-align:right">1725</td>
+<td style="text-align:right">351.81</td>
+</tr>
+<tr>
+<td>promises-tildeio-rsvp.js</td>
+<td style="text-align:right">1796</td>
+<td style="text-align:right">368.14</td>
+</tr>
+<tr>
+<td>promises-ecmascript6-native.js</td>
+<td style="text-align:right">2627</td>
+<td style="text-align:right">503.57</td>
+</tr>
+<tr>
+<td>promises-dfilatov-vow.js</td>
+<td style="text-align:right">2660</td>
+<td style="text-align:right">517.37</td>
+</tr>
+<tr>
+<td>promises-medikoo-deferred.js</td>
+<td style="text-align:right">4277</td>
+<td style="text-align:right">419.20</td>
+</tr>
+<tr>
+<td>promises-obvious-kew.js</td>
+<td style="text-align:right">5936</td>
+<td style="text-align:right">823.56</td>
+</tr>
+</tbody>
+</table>
+<h3 id="concurrency">Concurrency</h3>
+<p>Run: npm run benchl<br>Total number of tasks: 25<br>Concurrency: 5  </p>
+<p>results for 10000 parallel executions, 1 ms per I/O op</p>
+<table>
+<thead>
+<tr>
+<th>file</th>
+<th style="text-align:right">time(ms)</th>
+<th style="text-align:right">memory(MB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>callbacks-peterluhub-sonic-async-parallelLimit.js</td>
+<td style="text-align:right">439</td>
+<td style="text-align:right">100.89</td>
+</tr>
+<tr>
+<td>callbacks-suguru03-neo-async-parallelLimit.js</td>
+<td style="text-align:right">462</td>
+<td style="text-align:right">100.66</td>
+</tr>
+<tr>
+<td>promises-bluebird.js</td>
+<td style="text-align:right">607</td>
+<td style="text-align:right">106.64</td>
+</tr>
+<tr>
+<td>callbacks-caolan-async-parallelLimit.js</td>
+<td style="text-align:right">992</td>
+<td style="text-align:right">221.04</td>
+</tr>
+</tbody>
+</table>
+<p><br /></p>
+<p>Platform info:<br>Linux 3.10.0-229.20.1.el7.x86_64 x64<br>Node.JS 5.0.0<br>V8 4.6.85.28<br>Intel(R) Core(TM) i3-4150 CPU @ 3.50GHz × 1  </p>
