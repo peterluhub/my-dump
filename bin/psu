@@ -1,0 +1,1 @@
+ps -u pl -e -o rss,drs,%cpu,args|sort -k1,1n

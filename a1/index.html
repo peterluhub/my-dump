@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="node_modules/bootstrap3/dist/css/bootstrap.css">
+<script src='angular/angular.js'></script>
+<script src='directive.js'></script>
+<script src='app.js'></script>
+</head>
+<body ng-app='drv' ng-controller='drvctrl'>
+<multi-select-box
+    ulr='.'
+    bheight='10'
+    left-label='Left'
+    right-label='Right'
+    datasource='data' 
+    ng-model="outdata">
+</multi-select-box>
+data={{data}}
+selectedItems={{outdata}}
+</body>
+</html>

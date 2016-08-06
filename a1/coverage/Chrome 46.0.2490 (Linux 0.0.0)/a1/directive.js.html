@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for a1/directive.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">a1/</a> directive.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">35.71% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>10/28</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">30% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>3/10</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">42.86% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>3/7</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">35.71% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>10/28</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">(function() {
+  var app = angular.module('multiSelectBox', []);
+  app.service('swap', function() {
+    this.exchg = function (src, target, action) {
+        for(i=0, len=src.length; i&lt;len; i++) {
+            var idx = target.indexOf(src[i]);
+            <span class="missing-if-branch" title="if path not taken" >I</span>if( action === 'del' ) {
+<span class="cstat-no" title="statement not covered" >                if( idx !== -1 ) </span>
+<span class="cstat-no" title="statement not covered" >                    target.splice(idx,1);</span>
+            } else {
+                if( idx === -1 )
+                    target.push(src[i]);
+            }
+        }
+    };
+  });
+&nbsp;
+  app.directive('multiSelectBoxDirective', ['swap', <span class="fstat-no" title="function not covered" >function (swap) {</span>
+<span class="cstat-no" title="statement not covered" >    var templateUrl = '/msbtemplate.html';</span>
+<span class="cstat-no" title="statement not covered" >    var controller = ['$scope', <span class="fstat-no" title="function not covered" >function ($scope) {</span></span>
+<span class="cstat-no" title="statement not covered" >        var sc = $scope;</span>
+<span class="cstat-no" title="statement not covered" >        sc.selectedItems = [];</span>
+<span class="cstat-no" title="statement not covered" >        templateUrl = sc.url + templateUrl;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        sc.toright = <span class="fstat-no" title="function not covered" >function () {</span></span>
+<span class="cstat-no" title="statement not covered" >            if( !sc.toRightSelected ) </span>
+<span class="cstat-no" title="statement not covered" >                return;</span>
+<span class="cstat-no" title="statement not covered" >            swap.exchg(sc.toRightSelected, sc.selectedItems, 'add');</span>
+<span class="cstat-no" title="statement not covered" >            swap.exchg(sc.toRightSelected, sc.datasource, 'del');</span>
+&nbsp;
+        };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        sc.toleft = <span class="fstat-no" title="function not covered" >function () {</span></span>
+<span class="cstat-no" title="statement not covered" >            if( !sc.toLeftSeleted ) </span>
+<span class="cstat-no" title="statement not covered" >                return;</span>
+<span class="cstat-no" title="statement not covered" >            swap.exchg(sc.toLeftSeleted, sc.datasource, 'add');</span>
+<span class="cstat-no" title="statement not covered" >            swap.exchg(sc.toLeftSeleted, sc.selectedItems, 'del');</span>
+        };
+      }];
+&nbsp;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >      return {</span>
+          restrict: 'EA', 
+          scope: {
+              url: '@',
+              bheight: '@',
+              leftLabel: '@',
+              rightLabel: '@',
+              datasource: '=',
+              selectedItems: '=ngModel'
+          },
+          controller: controller,
+          templateUrl: templateUrl
+      };
+  }]);
+}());
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Wed Nov 25 2015 15:02:46 GMT-0500 (EST)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

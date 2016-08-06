@@ -1,0 +1,34 @@
+{
+  "name": "multi-select-box",
+  "version": "0.0.1",
+  "description": "an Angular directive that allows selection/removal of one or more items from either the left or right selection box",
+  "author": "Peter Lu",
+  "contributors": [
+    {
+      "name": "Peter Lu"
+    }
+  ],
+  "main": "directive.js",
+  "dependencies": {
+    "angular": ">=1.2",
+    "bootstrap3": "^3.3.5",
+    "ng-describe": ">=1.3"
+  },
+  "scripts": {
+    "test": "karma start"
+  },
+  "preferGlobal": true,
+  "analyze": true,
+  "license": "MIT",
+  "devDependencies": {
+    "angular-mocks": "^1.4.8",
+    "babel": "^6.1.18",
+    "benv": "^3.0.0",
+    "gulp": "^3.9.0",
+    "gulp-jshint": "^2.0.0",
+    "gulp-util": "^3.0.7",
+    "jasmine": "^2.3.2",
+    "jshint": "^2.8.0",
+    "jshint-stylish": "^2.1.0"
+  }
+}

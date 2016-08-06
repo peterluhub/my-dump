@@ -1,0 +1,60 @@
+<html>
+    <head>
+        <script src='asyncFlow.js' type='text/javascript'></script>
+    </head>
+    <body>
+        <h1>parallel</h1>
+        <div>
+            <button onClick='startParallel()' id='startParallel'>start</button>  |
+            <button onClick='resetCanvas("paraCanvas")' id='parallelReset'>reset</button>
+        </div>
+        <div>
+            <canvas id='paraCanvas' width='500' height='200' style='border:1px black solid'></canvas>
+        </div>
+        <h1>series</h1>
+        <div>
+            <button onClick='startSeries()' id='startSeries'>start</button>  |
+            <button onClick='resetCanvas("seriesCanvas")' id='resetSeries'>reset</button>
+        </div>
+        <div>
+            <canvas id='seriesCanvas' width='500' height='200' style='border:1px black solid'></canvas>
+        </div>
+
+        <h1>waterfall</h1>
+        <div>
+            <button onClick='startWaterfall()' id='startWaterfall'>start</button>  |
+            <button onClick='resetCanvas("waterfallCanvas")' id='resetWaterfall'>reset</button>
+        </div>
+        <div>
+            <canvas id='waterfallCanvas' width='500' height='200' style='border:1px black solid'></canvas>
+        </div>
+        <h1>iterator</h1>
+        <div>
+            <button onClick='startIterator()' id='startIterator'>start</button>  |
+            <button onClick='resetCanvas("iteratorCanvas")' id='resetIterator'>reset</button>
+        </div>
+        <div>
+            <canvas id='iteratorCanvas' width='500' height='200' style='border:1px black solid'></canvas>
+        </div>
+        <h1>limit</h1>
+        <div>
+            <button onClick='startEachLimit()' id='startEachLimit'>start</button>  |
+            <button onClick='resetCanvas("limitCanvas")' id='eachLimitReset'>reset</button>
+        </div>
+        <div>
+            <canvas id='limitCanvas' width='500' height='200' style='border:1px black solid'></canvas>
+        </div>
+        <h1>nesting</h1>
+        <div>
+            <button onClick='startNesting()' id='startNesting'>start</button>  |
+            <button onClick='resetCanvas("nestingCanvas")' id='nestingReset'>reset</button>
+        </div>
+        <div>
+            <canvas id='nestingCanvas' width='500' height='200' style='border:1px black solid'></canvas>
+        </div>
+    <script src='test.js' type='text/javascript'></script>
+    <script src='afdraw.js' type='text/javascript'></script>
+    <script src='afcanvas.js' type='text/javascript'></script>
+    </body>
+</html>
+

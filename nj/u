@@ -1,0 +1,15 @@
+var parallel = require('parallel');
+var fs = require('fs');
+
+parallel()
+  .timeout(3000)
+  .add(function(done) {
+    fs.readFile('package.json', 'utf8', done);
+  })
+  .add(function(done) {
+    fs.readFile('index.js', 'utf8', done);
+  })
+  .done(function(err, results) {
+    console.log(results[0]);
+    console.log(results[1]);
+  })
